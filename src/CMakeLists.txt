@@ -10,6 +10,12 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 ########## Libraries. ##########
 
+### Exception
+
+add_library(exception STATIC
+	lib/exception/exception.cpp
+)
+
 ### String
 
 # No files
@@ -35,6 +41,7 @@ if(ENABLE_UNIT_TEST)
 	)
 
 	target_link_libraries(unit_test
+		exception
 		${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 	)
 
