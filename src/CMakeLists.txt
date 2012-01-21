@@ -21,6 +21,22 @@ add_library(exception STATIC
 # No files
 
 
+########## Modules. ##########
+
+### Logging
+
+add_library(logging
+	modules/logging/level.cpp
+	modules/logging/logger.cpp
+	modules/logging/log.cpp
+	modules/logging/module_logger.cpp
+)
+
+target_link_libraries(logging
+	exception
+)
+
+
 ########## Unit tests. ##########
 
 if(ENABLE_UNIT_TEST)

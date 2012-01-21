@@ -23,7 +23,9 @@ option(ENABLE_UNIT_TEST
 ########## Dependencies. ##########
 
 set(boost_components
+	system
 )
+
 if(ENABLE_UNIT_TEST)
 	set(boost_components ${boost_components} unit_test_framework)
 endif(ENABLE_UNIT_TEST)
