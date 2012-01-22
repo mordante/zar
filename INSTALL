@@ -1,0 +1,19 @@
+In order to build the programmes you'll need the following development tools,
+libraries and headers for these libraries. The version between parenthesis is
+the minimum version actively tested (if differs from the minimum listed
+version). It is still expected the minimum listed version works, but no
+guarantees.
+
+	cmake >= 2.8.0 (2.8.2)
+	g++ >= 4.7.0 *
+	boost >= 1.48
+	boost_system >= 1.48
+	boost_thread >= 1.48
+	boost_unit_tests >= 1.48 **
+	texlive >= 2009 ***
+	doxygen >= 1.7.1 ****
+
+*) The compiler hasn't been released yet, a recent snapshot is required.
+**) Needed for ENABLE_UNIT_TESTS.
+***) Needed for ENABLE_DESIGN_DOCUMENTS.
+****) Used to generate doxygen output.
