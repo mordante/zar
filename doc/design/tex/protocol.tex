@@ -1,0 +1,140 @@
+\chapter{Protocol}
+\label{chapter:protocol}
+
+The protocol described here will first describe some basic features of the
+protocol. Then the types are explained, followed by some information
+regarding the modes. The details of the modes are described in other
+chapters.
+
+\section{Generic}
+\label{section:protocol:generic}
+
+The protocol uses the UTF-8 character encoding and an end of line is the
+UNIX end of line. The communication can both be initiated by the server or
+the client. For example client A sends a message to the server requesting
+to send `hello world' to all players in the lobby. At that moment only
+player A and B are in the lobby. The following messages will be send:
+\begin{enumerate}
+\item
+	Player A sends the request to the server, this is an action.
+\item
+	The server sends the `hello world' to player B, this is an action.
+\item
+	Player B acknowledges the response to the server, this is a reply.
+\item
+	The server responds to player A, this is a reply.
+\end{enumerate}
+
+In this example the server wait with the response until it knows all players
+have acknowledged the message. The exact details of the message depend on
+the type.
+
+XXX strip connection message on the server, but explain there might be a
+motd which expects no response.
+
+\section{Types}
+\label{section:protocol:types}
+
+
+
+
+\subsection{Line}
+\label{protocol:line}
+
+Only used on the client and basically the same as the
+\nameref{protocol:telnet}, but only uses the UNIX end of line as line
+terminator.
+
+
+\subsection{Telnet}
+\label{protocol:telnet}
+
+This is the default protocol when starting a connection to the server. The
+protocol is not the default since it is the best protocol to use, but
+because it is easy to use when debugging with a telnet client.
+
+The protocol sends a string of text ending with the telnet end of line.
+
+The reply consists of a string possibly containing multiple lines
+(can it have end of lines in the message???)
+
+The normal client software will switch to the \nameref{protocol:basic} as
+soon as possible. The text based client needs to switch manually, but this
+client also is not the greatest of clients to use.
+
+\subsection{Basic}
+\label{protocol:basic}
+
+The basic protocol is also text based and contains the following fields:
+\begin{description}
+\item[message length]
+	A \mbox{$32$-bit} value in network byte order. This value contains the
+	size of the rest of the message, including the other header parts.
+
+\item[message type]
+	A one character value determining the type of the message. The possible
+	values are:
+	\begin{description}
+	\item[A] The message is an action.
+	\item[R] The message is a reply.
+	\end{description}
+
+\item[message id]
+	A \mbox{$32$-bit} value in network byte order. This id is used to map an
+	\emph{action} with a \emph{reply}. The value is determined by the sender
+	of the action.
+
+\item[message contents]
+	The actual contents of the message. All characters are allowed in the
+	message and none are escaped\footnote{Due to the length prefix there is
+	no need for escaping.}. The contents of the message depend on the
+	message type:
+	\begin{description}
+	\item[A]
+		The message contains an action. An action is a single word
+		containing character from the following set (using the C locale)
+		[a-Z0-9\_]. If the command has a parameter there will be \emph{one}
+		space after the command, then its parameter. The server is a state
+		machine, thus one parameter will suffice. E.g.
+		\begin{itemize}% koma special list
+		\item[set filetype=jpeg]
+			Tells the server next file will be a jpeg file,
+			when loading multiple jpeg files, it only needs to be set once.
+			The next comm
+		\item[set filename=portrait]
+			Tells the server to store the file under the name portrait on
+			the server.
+		\item file JPEG\ldots
+			Contains the actual contents of the file. The client should
+			facilitate a way to load the file. For example, on the client
+			one issues \command|/file no_elf.jpg|.
+		\end{itemize}
+	\item[B]
+		The message contains a reply. A reply contains of a single word
+		stating the result of the action. When the result is \command|OK|
+		the action was a success, all other values are an error. If there is
+		more to explain the result is followed by an end of line followed by
+		the exact result. For example the command
+		\mbox{\command|get_file portrait|} will return
+		\mbox{\texttt{OK\\nJPEG\ldots}}. Not every command will have a
+		result, but list of errors
+	\end{description}
+
+
+\end{description}
+
+
+\subsection{Compressed}
+\label{protocol:compressed}
+
+This protocol is basically the same as \nameref{protocol:basic} but
+compresses the transmitted data. The exact method of compression is not yet
+determined. (Thus the protocol is not yet implemented.)
+
+\section{Command mode}
+\section{section:protocol:command\_mode}
+
+command mode used as mode on server
+command\_version used as version for the commands
+protocol\_version used as version of the protocol
+

@@ -1,0 +1,52 @@
+\chapter{modules}
+\label{chapter:modules}
+
+This chapter contains all modules. When a module is large it might have its
+own dedicated chapter as well.
+
+
+\section{Commmunication}
+\label{section:module:communication}
+
+The communication module contains several classes used for communication.
+These classes are gathered in the main classes \command|tsocket| and
+\command|tfile|. The other classes are helpers and implementation details,
+but since the memberfunctions of these classes are important to know they
+are not in a \command|detail| namespace.
+
+The \command|tsocket| class contains the implementation for a tcp socket.
+
+The \command|tfile| class contains the implementation for reading from
+certain file descriptor. This code probably won't work on Windows.
+
+The generic design of these classes is not cast in stone yet. It has mainly
+be written as proof-of-concept and still needs to be polished.
+
+The classes can be set in sync and async mode. Regardless of the mode
+everything goes asynchrounously.
+
+
+\section{Lobby}
+\label{section:module:lobby}
+
+This module contains the lobby for the server. Its goal is to manage all
+connected users.
+
+
+\section{Logging}
+\label{logging}
+
+This module has several loggers:
+\begin{description}
+\item[simple]
+	The simple logger has no logging levels and logs everything. It can also
+	be used to write to log files, that are accessed from multiple threads.
+
+\item[basic]
+	The basic logger also enables log levels.
+
+\item[module]
+	The module logger also adds modules, where every module has its own
+	log level.
+
+\end{description}

@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 2.8)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 project(zar)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+
 ########## Configuration options. ##########
 
 option(ENABLE_STRICT_COMPILATION
@@ -16,6 +19,10 @@ option(ENABLE_DEBUG_COMPILATION
 )
 option(ENABLE_UNIT_TEST
 	"Build the unit test programme (has additional dependencies)"
+	ON
+)
+option(ENABLE_DESIGN_DOCUMENT
+	"Enables the generation of the design document (has additional dependencies)"
 	ON
 )
 
@@ -124,4 +131,5 @@ endif(NOT CONFIGURED)
 
 ############ Add subdirectories. ###########
 
+add_subdirectory(doc)
 add_subdirectory(src)

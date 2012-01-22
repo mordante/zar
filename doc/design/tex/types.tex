@@ -1,0 +1,99 @@
+\chapter{types}
+\label{chapter:types}
+
+
+pint, positive int
+nint, negative int`:w
+
+\section{Intergral}
+\label{section:types:integral}
+
+The integral types are all numeric types. The section shows each type from
+the smallest to the largest.
+
+\section{int8}
+\label{type:int8}
+
+\begin{description}
+\item[int8]\label{type:int8}
+	An \mbox{$8$-byte} integer value, whose range is [-128,127].
+
+\item[uint8]\label{type:uint8}
+	An \mbox{$8$-byte} unsigned integer value, whose range is [0,255].
+
+\item[pint8]\label{type:pint8}
+	An \mbox{$8$-byte} positive integer value, whose range is [1,255].
+
+\item[nint8]\label{type:nint8}
+	An \mbox{$8$-byte} negative integer value, whose range is [-1,-255].
+
+% ....
+
+% pint maps to the largest pintxx, at the moment 32
+
+\item[float]\label{float}
+	A floating point value, mapping to the C-type \command|double| its exact
+	range and resolution depend on the hardware platform.
+
+\end{description}
+
+
+\section{Enumerate}
+\label{type:enumerate}
+
+This section contains serveral enumerate type. They are between the integral
+type and string type, since internally they are a number, but external a
+string, even more as the normal numbers.
+
+
+\section{String}
+label{section:type:string}
+
+Contains all string types.
+
+
+\subsection{string}
+\label{type:string}
+
+Contains a pure string.
+
+
+\subsection{filename}
+\label{type:filename}
+
+Contains the name of a file. Filenames starting with a leading / are
+absolute. Otherwise the filename is relative. Whether or not the file needs
+to exists depends on the platform.
+
+On the windows platform an absolute name normally starts with `driveletter
+colon'. Here is still gets the leading slash. For example
+\command|C:\my_file| is written as \command|/C:\my_file|.
+
+\section{Misc}
+
+
+
+\subsection{Dice}
+\label{type:dice}
+
+The dice type is a special type and is formatted like:
+
+\indent [THROWS]dEYES[(-|+)MODIFIER]
+
+\begin{description}
+\item[THROWS]
+	A \type{pint} determining the number of throws that are required.
+
+\item[EYES]
+	A \type{pint} determining the number of eyes on the dice. Every throw
+	returns a value in the range [1, EYES].
+
+\item[MODIFIER]
+	a \type{uint}\footnote{positive, negative values are possible with the
+	minus sign.} determining the final adjustment of the throw.
+
+\end{description}
+
+Note when using large values for the parameters the results might be odd.
+The result of a throw is an \type{int} and has wrapping behaviour.
+

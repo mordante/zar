@@ -1,0 +1,106 @@
+\part{Communication}
+\label{part:communication}
+
+This part describes the communication protocol. It starts with the basic
+protocol, followed a chapter of data types known to the protocol. The
+commands available depend on the operation mode, first the operations
+available in all modes are described, followed by the commands per mode.
+The part ends with the commands in the client.
+
+
+%---
+%
+%\chapter{Communication}
+%\label{chapter:communication}
+%
+%This chapter first describes the communication protocols between the client and
+%server. Then it explains the different modi in the communication and the
+%available commands per mode.
+%
+%
+%\subsection{Protocol}
+%\label{section:communication:protocol}
+%
+%The communication specifies four different protocols, of which not all are
+%implemented. The default protocol is telnet.
+%
+%\begin{description}
+%\item[line]
+%	The line based protocol ends every command with a newline character.
+%	This protocol is not used on the network, but is used for the client.
+%
+%\item[telnet]
+%	This protocol is also line based, but has a carriage return and linefeed
+%	terminator. This is the default for the telnet programme. This protocol
+%	has the disadvantage that it is not possible to use multiple lines in a
+%	single command. It is the default since it makes it easier to debug and
+%	test with the telnet programme.
+%
+%\item[length\_prefixed]
+%	This protocol has 4 bytes (network order) containing the length of the
+%	rest of the message. Then number of bytes need to be read.
+%
+%\item[gzipped]
+%	Like the length\_prefixed, but the stream is compressed with gzip. It is
+%	not yet determined whether the entire stream is gzipped or only the
+%	message contents.
+%\end{description}
+%
+%
+%\subsection{Modi}
+%\label{section:communication:modi}
+%
+%When connection to the server depending on the mode several commands are or
+%are not available.
+%
+%
+%\subsection{Generic}
+%
+%Always available:
+%
+%\minisec{set}
+%The set command is always issued like
+%
+%set variable=value
+%
+%No white space is allowed around the assignment operator. The variables
+%available depend on the active mode.
+%
+%
+%
+%
+%\subsection{Connected}
+%
+%This mode is active directly after connecting to the server.
+%
+%
+%\minisec{login}
+%
+%login ID
+%
+%The ID to use on the server. After issuing this command the mode changed to
+%lobby.
+%
+%
+%\subsection{Lobby}
+%
+%After logging in after connecting or after leaving a game this mode will be
+%active.
+%
+%-------
+%Set
+%
+%protocol=PROTOCOL
+%
+%PROTOCOL is one of \nameref{protocol:line}, \nameref{protocol:telnet},
+%\nameref{protocol:base}, \nameref{protocol:compressed}.
+%
+%sets the appropriate communication protocol. The server response will
+%already use the new protocol.
+%
+%Available modi \AllModi
+%
+%
+%-----
+%
+%Maybe make this entire thing a part...

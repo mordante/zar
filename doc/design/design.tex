@@ -1,0 +1,55 @@
+\documentclass[notitlepage,openany,oneside,english]{scrbook}
+%\overfullrule=55pt
+%\tracingmacros=1
+
+\usepackage{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[colorlinks]{hyperref}
+
+\usepackage{alltt}
+\usepackage{cleveref}
+\usepackage{listings}
+\lstset{
+	  captionpos=b
+	, tabsize = 4
+	, frame = single
+}
+\newcommand{\command}{%
+	\lstinline[%
+		  basicstyle=\ttfamily%
+		, breaklines=true%
+		, language=TeX%
+		]}
+
+\newcommand{\type}[1]{\nameref{type:#1}}
+
+
+\author{M.~de Wever}
+\title{Zar design document}
+
+\begin{document}
+
+\maketitle
+
+\include{tex/preface}
+
+\tableofcontents
+
+\include{tex/design}
+\include{tex/coding_style}
+\include{tex/libraries}
+\include{tex/modules}
+
+\include{tex/communication}
+\include{tex/protocol}
+\include{tex/types}
+
+%\include{tex/all_modes}
+%\include{tex/mode_lobby}
+
+\include{tex/client}
+
+\end{document}
+

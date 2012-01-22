@@ -1,0 +1,59 @@
+\chapter{server}
+\label{chapter:server}
+
+The design is that the server handles everything the clients are just
+terminals which can send actions or receive actions. All games are stored on
+the server, when a game is created it gets a numeric id, known as its token.
+The games are stored on the server and keep running when all players
+disconnected. They can also be stored on the disk of the server for later
+retrieval. The GM can also allow who can download a game. A game has the
+following properties:
+\begin{description}
+\item[id]
+	A \mbox{$64$-bit} value which uniquely identifies a game on the server.
+	This id can be changed when uploading a saved game.
+
+\item[version]
+	The version of the game data.
+
+\item[name]
+	The name of the game, this name needs to be unique on the server. It is
+	the id players use to connect to a game.
+
+\item[password]
+	A password needed to manipulate the game.
+
+
+\end{description}
+
+game create, creates a new game, the player switches to the game and is M.
+
+game save, saves the game on the local disk
+
+game load, load a game from a local file to the server
+
+game postpone, removes the game from the list of games in the lobby.
+
+game retrieve, loads an postponed game into the list of games in the lobby
+
+game close, the GM closes the game, no more actions can be done in the game
+
+game open, reopens a closed game.
+
+game join, joins a game in the lobby.
+
+game delete, removes the game from the server and deletes its state on the
+server. This action has no command to undo it, except when the game is
+loaded again by a player.
+
+
+notifications send by the server
+
+player joined [NAME] a player joined the game or the lobby.
+
+player left [NAME] a player went from game to lobby of vice versa
+
+player disconnected [NAME] a player disconnected from the game or lobby
+
+
+

@@ -1,0 +1,137 @@
+\chapter{client}
+\label{chapter:client}
+
+The client normally forwards the input on the console to the server. Every
+line is a command. Lines that start with a slash `/' are handled by the
+client itself. Thus it is not possible to send commands or lines to the
+server that start with a slash.
+
+In order to send commands using multiple lines see
+\cref{section:client:begin} and \cref{section:client:end}.
+
+The rest of the chapter lists the commands in alphabetic order.
+
+
+
+\section{Connect}
+\label{section:client:connect}
+
+Connects to a server.
+
+\indent connect SERVER[:SERVICE]\\
+
+After the connection with the server is established the protocol is switched
+to \nameref{protocol:basic}.
+
+At the moment the connection is always using IPv4, IPv6 support is planned
+for the future.
+
+
+xxxx (should be Koma thingy)
+\begin{description}
+\item[SERVER]
+	The hostname or IP address of the server to connect to.
+
+\item[SERVICE]
+	The service name or the port number to connect to. If omitted the
+	default port, $2048$, is used.
+
+\end{description}
+
+The following errors are expected:xxxx
+
+
+\section{Begin}
+\label{section:client:begin}
+
+Begins a multi-line command.
+
+\indent begin
+
+Every line typed after this command is buffered, including the end of line
+character,  until the \nameref{section:client:end} command is entered. Then
+the entire buffer, minus the last end of line character is send to the
+server as one command. For example:
+
+\begin{alltt}
+/begin
+message This is the first line in the message.
+This is the second line in the message.
+This is the third line in the message.
+/end
+\end{alltt}
+
+This sends a message containing three lines.
+
+After this command only the \nameref{section:client:end} command is allowed
+all other commands result in undefined behaviour.
+
+
+
+EBUSY if already active
+
+
+\section{end}
+\label{section:client:end}
+
+Ends a multi-line command.
+
+\indent end
+
+For more information see \cref{section:client:begin}.
+
+EPROTOCOL if not in multi-line mode
+
+
+\section{Log}
+\label{section:client:log}
+
+Sets the filename to log to.
+
+\indent log FILENAME
+
+The server logs all communication with the server in a logfile. The default
+name is `client.log'. All log entries are appended to the file.
+
+Upon error the old log file is still used.
+
+\begin{description}
+\item[FILENAME]
+	The name of the file to log to. When the file does not exists it is
+	created, but the parent directory must exist.
+\end{description}
+
+Errors:
+\begin{description}
+\item[EBUSY]
+	The file cannot be opened since it is opened by another process.
+
+\item[EPERM]
+	The file cannot be opend due to lack of permissions.
+
+\item[EXISTS]
+	The item exists and is a directory.
+
+\end{description}
+
+
+%%%\begin{protocol}
+%%%\label{protocol}
+
+Changes the communication protocol.
+
+\indent protocol PROTOCOL
+
+xxxx \nameref{type:protocol} for the type?
+
+This command allows to switch to every protocol however it is recommended to
+%%%only switch to \nameref{protocol:basic} and \protocol{compressed}% add the
+%protocol command
+The other protocols should work but are only intended to be used for
+debugging.
+
+\begin{description}
+\item[PROTOCOL]
+	The new protocol to use.
+\end{description}
+

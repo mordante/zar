@@ -1,0 +1,94 @@
+\chapter{Coding style}
+\label{chapter:coding_style}
+
+The programmes are writen in \mbox{C++} based on the \mbox{C++$11$}
+standard. The number of compilers implementing this standard are
+rare\footnote{Written in november $2011$.}, the only compiler the programmes
+are tested with are pre-releases of \mbox{gcc-4.7}. Even this compiler has
+no full \mbox{C++$11$} support, but its support is rather good.
+
+
+\section{Separation}
+
+The code is separated in libraries and modules. There is no real difference
+between a library and a module. In general a module is a large library. Both
+libraries and modules can depend on other libraries and modules in the
+packages. All code in the libraries is in the \command|lib| namespace, all
+code in a modules is in a namespace named after the module. Code which
+contains implementation details and should not be used outside the library
+or module is nesteed in the \command|detail| namespace.
+
+Files of a library are in a directory named after the library in the
+libraries subdirectory. Modules in a directory in named after the module in
+the modules subdirectory. Libraries most of the time have no other
+subdirectories and a limited number of files. Modules are expected to have a
+larger number of files and subdirectories. If a file only contains
+implementation details it should be in a detail subdirectory.
+
+
+Filenames have several extensions:
+\begin{description}
+\item[hpp]\label{file:hpp}
+	Header files, they need to have an include guard and an associated
+	\nameref{file:cpp} file.
+
+\item[cpp]\label{file:cpp}
+	Contains the implementation of its associated \nameref{file:hpp} file.
+
+\item[tpp]
+	These files are like \nameref{file:hpp} but has no associated
+	\nameref{file:cpp} file. The file only contains templated code. This
+	does not mean \nameref{file:hpp} files contain no templates.
+
+\end{description}
+
+A single file should normally only implements a single class.
+
+
+\section{Documentation}
+
+All code is documented using Doxygen. This documentation is meant as
+reference documentation. The larger picture is described in this document.
+
+
+\section{Coding style}
+
+This section contains the coding style. The code is using \mbox{C++$11$} its
+features are preferred to be used over \mbox{C++$98$} style features. For
+example, a non-copyable class that can be moved, can be stored directly in a
+standard container, no need to store a pointer.
+
+\begin{description}
+\item{Constructors, destructors and assignment}
+	All these items need to be defined for every class. \mbox{C++$11$}
+	allows \command|deleted| and \command|defaulted| versions of these
+	functions, use this feature.
+
+\item{Assign constructor values in the header}
+	\mbox{C++$11$} allows to assign a constructor value in the header, use
+	this for values that are assigned the same value for all constructors.
+
+\item{Pointer and reference}
+	If a parameter is a pointer its value may be a \command|nullptr| when a
+	reference not.
+
+\item{Exceptions}
+	All code should be exception safe and use exceptions to indicate
+	errors.
+
+\item{No compilation warnings}
+	By default the compiler settings are strict, make sure committed code
+	does not trigger warnings. (Obviously when using a different compiler
+	new warnings might be triggered.) On occation warnings might be disabled
+	for a part of a tranistion unit, when the warning is triggered by
+	external code.
+
+\item{Document all code}
+	The code should contain Doxygen comment. This comment is meant as
+	reference documentation. The larger picture should be documented in this
+	document.
+
+\item{In rome do as the romans do}
+	When starting to hack on the source code, emulate its style.
+
+\end{description}
