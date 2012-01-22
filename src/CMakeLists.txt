@@ -16,6 +16,12 @@ add_library(exception STATIC
 	lib/exception/exception.cpp
 )
 
+### Strand
+
+add_library(strand STATIC
+	lib/strand/strand.cpp
+)
+
 ### String
 
 # No files
