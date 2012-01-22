@@ -23,6 +23,30 @@ add_library(exception STATIC
 
 ########## Modules. ##########
 
+### Communication
+
+add_library(communication STATIC
+	modules/communication/connection.cpp
+	modules/communication/connector.cpp
+	modules/communication/acceptor.cpp
+	modules/communication/sender.cpp
+	modules/communication/receiver.cpp
+	modules/communication/file.cpp
+	modules/communication/socket.cpp
+)
+
+# Disable -Weffc++ since fails due to inheritance.
+set_target_properties(communication
+	PROPERTIES
+		COMPILE_FLAGS "-Wno-effc++"
+)
+
+target_link_libraries(communication
+	exception
+	logging
+	${Boost_SYSTEM_LIBRARIES}
+)
+
 ### Logging
 
 add_library(logging
