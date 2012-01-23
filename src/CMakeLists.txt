@@ -32,26 +32,21 @@ add_library(strand STATIC
 ### Communication
 
 add_library(communication STATIC
-	modules/communication/message.cpp
-	modules/communication/connection.cpp
-	modules/communication/connector.cpp
-	modules/communication/acceptor.cpp
-	modules/communication/sender.cpp
-	modules/communication/types.cpp
-	modules/communication/receiver.cpp
+	modules/communication/detail/acceptor.cpp
+	modules/communication/detail/connection.cpp
+	modules/communication/detail/connector.cpp
+	modules/communication/detail/receiver.cpp
+	modules/communication/detail/sender.cpp
 	modules/communication/file.cpp
-	modules/communication/socket.cpp
-)
-
-# Disable -Weffc++ since fails due to inheritance.
-set_target_properties(communication
-	PROPERTIES
-		COMPILE_FLAGS "-Wno-effc++"
+	modules/communication/message.cpp
+	modules/communication/tcp_socket.cpp
+	modules/communication/types.cpp
 )
 
 target_link_libraries(communication
 	exception
 	logging
+	strand
 	${Boost_SYSTEM_LIBRARIES}
 )
 

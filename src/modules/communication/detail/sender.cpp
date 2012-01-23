@@ -14,59 +14,70 @@
 
 #define LOGGER_DEFINE_MODULE_LOGGER_MACROS "communication"
 
-#include "modules/communication/sender.hpp"
+#include "modules/communication/detail/sender.hpp"
 
 #include "modules/logging/log.hpp"
 
+#include <boost/asio/write.hpp>
+
 namespace communication {
 
-tsender_::tsender_()
-	: tconnection()
+namespace detail {
+
+template<class STREAM>
+tsender<STREAM>::tsender(tconnection& connection__, STREAM& stream__)
+	: connection_(connection__)
+	, stream_(stream__)
 {
 }
 
-tsender_::~tsender_() = default;
+template<class STREAM>
+tsender<STREAM>::~tsender() = default;
 
+template<class STREAM>
 uint32_t
-tsender_::send_action(const std::string& message)
+tsender<STREAM>::send_action(const std::string& message)
 {
 	LOG_T(__PRETTY_FUNCTION__, ": message »", message, "«.\n");
 
 	uint32_t id__;
 	while((id__ = ++id_) == 0) { /* NOTHING */ }
 
-	strand_execute(std::bind(
-			  &tsender_::async_send_message
+	connection_.strand_execute(std::bind(
+			  &tsender::send_message
 			, this
 			, tmessage(tmessage::ttype::action, id__, message)));
 
 	return id__;
 }
 
+template<class STREAM>
 void
-tsender_::send_reply(const uint32_t id__, const std::string& message)
+tsender<STREAM>::send_reply(const uint32_t id, const std::string& message)
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": id »", id__
+			, ": id »", id
 			, "« message »", message
 			, "«.\n");
 
-	strand_execute(std::bind(
-			  &tsender_::async_send_message
+	connection_.strand_execute(std::bind(
+			  &tsender::send_message
 			, this
-			, tmessage(tmessage::ttype::reply, id__, message)));
+			, tmessage(tmessage::ttype::reply, id, message)));
 }
 
+template<class STREAM>
 void
-tsender_::set_send_handler(const tsend_handler& handler__)
+tsender<STREAM>::set_send_handler(const tsend_handler& send_handler__)
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
 
-	send_handler_ = handler__;
+	send_handler_ = send_handler__;
 }
 
+template<class STREAM>
 void
-tsender_::async_send_message(tmessage message)
+tsender<STREAM>::send_message(tmessage message)
 {
 	LOG_T(__PRETTY_FUNCTION__
 			, ": id »", message.id()
@@ -77,12 +88,13 @@ tsender_::async_send_message(tmessage message)
 	messages_.push_back(std::move(message));
 
 	if(!sending) {
-		async_send_queue();
+		send_queue_message();
 	}
 }
 
+template<class STREAM>
 void
-tsender_::asio_send_callback(
+tsender<STREAM>::send_queue_message_handler(
 	  const boost::system::error_code& error
 	, const size_t bytes_transferred)
 {
@@ -99,13 +111,13 @@ tsender_::asio_send_callback(
 
 	messages_.pop_front();
 	if(!messages_.empty()) {
-		async_send_queue();
+		send_queue_message();
 	}
 }
 
-template<class AsyncWriteStream>
+template<class STREAM>
 void
-tsender<AsyncWriteStream>::async_send_queue()
+tsender<STREAM>::send_queue_message()
 {
 	LOG_T(__PRETTY_FUNCTION__
 			, ": id »", messages_.front().id()
@@ -118,17 +130,19 @@ tsender<AsyncWriteStream>::async_send_queue()
 			)>
 			thandler;
 
-	strand_execute(
-			[&](thandler&& handler)
-			  {
-				  boost::asio::async_write(
-						  dynamic_cast<AsyncWriteStream&>(*this)
-						, boost::asio::buffer(
-								messages_.front().encode(get_protocol()))
-						, handler);
-			  }
+	auto functor = [&](thandler&& handler)
+		{
+			boost::asio::async_write(
+					  stream_
+					, boost::asio::buffer(messages_.front().encode(
+							connection_.get_protocol()))
+					, handler);
+		};
+
+	connection_.strand_execute(
+			  functor
 			, std::bind(
-				  &tsender_::asio_send_callback
+				  &tsender::send_queue_message_handler
 				, this
 				, std::placeholders::_1
 				, std::placeholders::_2));
@@ -136,5 +150,7 @@ tsender<AsyncWriteStream>::async_send_queue()
 
 template class tsender<boost::asio::ip::tcp::socket>;
 template class tsender<boost::asio::posix::stream_descriptor>;
+
+} // namespace detail
 
 } // namespace communication

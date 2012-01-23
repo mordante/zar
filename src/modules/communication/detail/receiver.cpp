@@ -14,41 +14,55 @@
 
 #define LOGGER_DEFINE_MODULE_LOGGER_MACROS "communication"
 
-#include "modules/communication/receiver.hpp"
-#include "modules/logging/log.hpp"
+#include "modules/communication/detail/receiver.hpp"
 
 #include "lib/exception/validate.tpp"
+#include "modules/logging/log.hpp"
+
+#include <boost/asio/completion_condition.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/read_until.hpp>
 
 namespace communication {
 
-treceiver_::treceiver_()
-	: tconnection()
+namespace detail {
+
+template<class STREAM>
+treceiver<STREAM>::treceiver(tconnection& connection__, STREAM& stream__)
+	: connection_(connection__)
+	, stream_(stream__)
 {
 }
 
+template<class STREAM>
+treceiver<STREAM>::~treceiver() = default;
 
-treceiver_::~treceiver_() = default;
-
+template<class STREAM>
 void
-treceiver_::set_receive_handler(const treceive_handler& handler__)
+treceiver<STREAM>::set_receive_handler(
+		const treceive_handler& receive_handler__)
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
-	receive_handler_ = handler__;
+
+	receive_handler_ = receive_handler__;
 }
 
+template<class STREAM>
 void
-treceiver_::start()
+treceiver<STREAM>::receive()
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
 
-	strand_execute(std::bind(&treceiver_::async_receive_message, this));
+	connection_.strand_execute(std::bind(&treceiver::receive_message, this));
 }
 
+template<class STREAM>
 void
-treceiver_::async_receive_message()
+treceiver<STREAM>::receive_message()
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
-	switch(get_protocol()) {
+
+	switch(connection_.get_protocol()) {
 		case tprotocol::direct :
 			/*
 			 * Need to use the transfer_all condition, instead of transfer
@@ -58,16 +72,16 @@ treceiver_::async_receive_message()
 			return;
 
 		case tprotocol::line :
-			async_receive_until("\n");
+			receive_until("\n");
 			return;
 
 		case tprotocol::telnet :
-			async_receive_until("\r\n");
+			receive_until("\r\n");
 			return;
 
 		case tprotocol::basic :
-			async_receive(4, std::bind(
-					&treceiver_::asio_receive_callback_read_length
+			receive(4, std::bind(
+					&treceiver::asio_receive_handler_read_length
 					, this
 					, std::placeholders::_1
 					, std::placeholders::_2));
@@ -78,11 +92,62 @@ treceiver_::async_receive_message()
 			return;
 	}
 
-	ENUM_FAIL_RANGE(get_protocol());
+	ENUM_FAIL_RANGE(connection_.get_protocol());
 }
 
+template<class STREAM>
 void
-treceiver_::asio_receive_callback_read_length(
+treceiver<STREAM>::receive_until(const std::string& terminator)
+{
+	LOG_T(__PRETTY_FUNCTION__, "' terminator '", terminator, "'.\n");
+
+	typedef std::function<void(
+				  const boost::system::error_code&
+				, const size_t bytes_transferred
+			)>
+			thandler;
+
+	auto functor = [&](thandler&& handler)
+		{
+			boost::asio::async_read_until(
+					  stream_
+					, input_buffer_
+					, terminator
+					, handler);
+		};
+
+	connection_.strand_execute(
+			  functor
+			, std::bind(
+				  &treceiver::asio_receive_handler
+				, this
+				, std::placeholders::_1
+				, std::placeholders::_2));
+}
+
+template<class STREAM>
+void
+treceiver<STREAM>::receive(
+		  const size_t bytes
+		, tasio_receive_handler receive_handler)
+{
+	LOG_T(__PRETTY_FUNCTION__, "' bytes '", bytes, "'.\n");
+
+	auto functor = [&](tasio_receive_handler&& handler)
+		{
+			boost::asio::async_read(
+					  stream_
+					, input_buffer_
+					, boost::asio::transfer_exactly(bytes)
+					, handler);
+		};
+
+	connection_.strand_execute(functor, receive_handler);
+}
+
+template<class STREAM>
+void
+treceiver<STREAM>::asio_receive_handler_read_length(
 		  const boost::system::error_code& error
 		, const size_t bytes_transferred)
 {
@@ -98,7 +163,7 @@ treceiver_::asio_receive_callback_read_length(
 			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
-		start();
+		receive();
 		return;
 	}
 
@@ -109,15 +174,16 @@ treceiver_::asio_receive_callback_read_length(
 
 	input_buffer_.consume(bytes_transferred);
 
-	async_receive(length, std::bind(
-			  &treceiver_::asio_receive_callback
+	receive(length, std::bind(
+			  &treceiver::asio_receive_handler
 			, this
 			, std::placeholders::_1
 			, std::placeholders::_2));
 }
 
+template<class STREAM>
 void
-treceiver_::asio_receive_callback(
+treceiver<STREAM>::asio_receive_handler(
 		  const boost::system::error_code& error
 		, const size_t bytes_transferred)
 {
@@ -133,13 +199,13 @@ treceiver_::asio_receive_callback(
 			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
-		start();
+		receive();
 		return;
 	}
 
 	/* decode message */
 	tmessage message(
-			  get_protocol()
+			  connection_.get_protocol()
 			, std::string(
 				  boost::asio::buffer_cast<const char*>(input_buffer_.data())
 				, bytes_transferred));
@@ -150,58 +216,12 @@ treceiver_::asio_receive_callback(
 		receive_handler_(error, bytes_transferred, &message);
 	}
 
-	start();
-}
-
-
-template<class AsyncReadStream>
-void
-treceiver<AsyncReadStream>::async_receive_until(const std::string& terminator)
-{
-	LOG_T(__PRETTY_FUNCTION__, "' terminator '", terminator, "'.\n");
-
-	typedef std::function<void(
-				  const boost::system::error_code&
-				, const size_t bytes_transferred
-			)>
-			thandler;
-
-	strand_execute(
-			[&](thandler&& handler)
-			  {
-				  boost::asio::async_read_until(
-						  dynamic_cast<AsyncReadStream&>(*this)
-						, input_buffer_
-						, terminator
-						, handler);
-			  }
-			, std::bind(
-				  &treceiver_::asio_receive_callback
-				, this
-				, std::placeholders::_1
-				, std::placeholders::_2));
-}
-
-template<class AsyncReadStream>
-void
-treceiver<AsyncReadStream>::async_receive(
-		  const size_t bytes
-		, thandler handler)
-{
-	LOG_T(__PRETTY_FUNCTION__, "' bytes '", bytes, "'.\n");
-	strand_execute(
-			[&](thandler&& h)
-			  {
-				  boost::asio::async_read(
-						  dynamic_cast<AsyncReadStream&>(*this)
-						, input_buffer_
-						, boost::asio::transfer_exactly(bytes)
-						, h);
-			  }
-			, handler);
+	receive();
 }
 
 template class treceiver<boost::asio::ip::tcp::socket>;
 template class treceiver<boost::asio::posix::stream_descriptor>;
+
+} // namespace detail
 
 } // namespace communication

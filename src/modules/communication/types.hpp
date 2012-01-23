@@ -20,7 +20,13 @@
 #ifndef MODULES_COMMUNICATION_TYPES_HPP_INCLUDED
 #define MODULES_COMMUNICATION_TYPES_HPP_INCLUDED
 
+#include <boost/system/error_code.hpp>
+
+#include <functional>
+
 namespace communication {
+
+class tmessage;
 
 /**
  * The communication protocol used.
@@ -45,6 +51,55 @@ enum class tprotocol
 	/** Data has its length prefixed and compressed. */
 	, compressed
 };
+
+/**
+ * The signature for a handler called after accepting a connection.
+ *
+ * @param error                   The boost asio error code.
+ */
+typedef std::function<void(
+			  const boost::system::error_code& error
+		)>
+		taccept_handler;
+
+/**
+ * The signature for a handler called after connection to a host.
+ *
+ * @param error                   The boost asio error code.
+ */
+typedef std::function<void(
+			  const boost::system::error_code& error
+		)>
+		tconnect_handler;
+
+/**
+ * The signature for a handler called after sending a message.
+ *
+ * @param error                   The boost asio error code.
+ * @param bytes_transferred       The number of bytes send
+ * @param message                 The message which has been send.
+ */
+typedef std::function<void(
+			  const boost::system::error_code& error
+			, const size_t bytes_transferred
+			, const tmessage& message
+		)>
+		tsend_handler;
+
+/**
+ * The signature for a handler called after receiving a message.
+ *
+ * @param error                   The boost asio error code.
+ * @param bytes_transferred       The number of bytes received
+ * @param message                 The message which has been received. Upon
+ *                                error the pointer will be a @c nullptr.
+ */
+typedef std::function<void(
+			  const boost::system::error_code& error
+			, const size_t bytes_transferred
+			, const tmessage* message
+		)>
+		treceive_handler;
 
 } // namespace communication
 

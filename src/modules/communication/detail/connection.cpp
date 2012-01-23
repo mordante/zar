@@ -14,20 +14,35 @@
 
 #define LOGGER_DEFINE_MODULE_LOGGER_MACROS "communication"
 
-#include "modules/communication/socket.hpp"
+#include "modules/communication/detail/connection.hpp"
+
+#include "modules/logging/log.hpp"
 
 namespace communication {
 
-tsocket::tsocket(boost::asio::io_service& io_service)
-	: boost::asio::ip::tcp::socket(io_service)
-	, tconnection()
-	, treceiver_socket(io_service)
-	, tsender_socket(io_service)
-	, tconnector_socket(io_service)
-	, tacceptor_socket(io_service)
+namespace detail {
+
+tconnection::~tconnection()
 {
+	strand_disable();
 }
 
-tsocket::~tsocket() = default;
+void
+tconnection::set_protocol(const tprotocol protocol__)
+{
+	LOG_T(__PRETTY_FUNCTION__, ": protocol »", protocol__, "«.\n");
+
+	protocol_ = protocol__;
+}
+
+tprotocol
+tconnection::get_protocol() const
+{
+	LOG_T(__PRETTY_FUNCTION__, ".\n");
+
+	return protocol_;
+}
+
+} // namespace detail
 
 } // namespace communication
