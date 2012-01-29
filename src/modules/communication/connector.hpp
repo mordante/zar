@@ -90,8 +90,7 @@ public:
 	tconnector(tconnector&&) = default;
 
 	typename InternetProtocol::resolver resolver_;
-	typename InternetProtocol::resolver::query query_ =
-		typename InternetProtocol::resolver::query("", "");
+	typename InternetProtocol::resolver::query query_{"", ""};
 
 	virtual void
 	async_query(const std::string hostname, const std::string service) override
