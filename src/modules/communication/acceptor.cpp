@@ -44,21 +44,23 @@ tacceptor<InternetProtocol>::accept(
 		typename InternetProtocol::acceptor& acceptor)
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		acceptor.async_accept(
-				  dynamic_cast<typename InternetProtocol::socket&>(*this)
-				, strand__->wrap(std::bind(
-					  &tacceptor::asio_accept_callback
-					, this
-					, std::placeholders::_1)));
-	} else {
-		acceptor.async_accept(
-				  dynamic_cast<typename InternetProtocol::socket&>(*this)
-				, std::bind(
-					  &tacceptor::asio_accept_callback
-					, this
-					, std::placeholders::_1));
-	}
+
+	typedef std::function<void(
+				  const boost::system::error_code&
+			)>
+			thandler;
+
+	strand_execute([&](thandler&& handler)
+			  {
+				  acceptor.async_accept(
+						  dynamic_cast<typename InternetProtocol::socket&>(
+							  *this)
+						, handler);
+			  }
+			, std::bind(
+				  &tacceptor::asio_accept_callback
+				, this
+				, std::placeholders::_1));
 }
 
 template class tacceptor<boost::asio::ip::tcp>;

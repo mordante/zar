@@ -35,15 +35,11 @@ tconnector_::connect(const std::string& hostname, const std::string& service)
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
 
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		strand__->post(std::bind(
-				  &tconnector_::async_query
-				, this
-				, hostname
-				, service));
-	} else {
-		async_query(hostname, service);
-	}
+	strand_execute(std::bind(
+			  &tconnector_::async_query
+			, this
+			, hostname
+			, service));
 }
 
 template class tconnector<boost::asio::ip::tcp>;

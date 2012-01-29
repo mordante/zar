@@ -49,39 +49,7 @@ tconnection::tmessage::tmessage(
 
 tconnection::~tconnection()
 {
-	set_sync_mode();
-}
-
-void
-tconnection::set_async_mode(boost::asio::io_service& io_service)
-{
-	LOG_T(__PRETTY_FUNCTION__, ".\n");
-
-	set_sync_mode();
-	strand_ = new boost::asio::io_service::strand(io_service);
-	own_strand_ = true;
-}
-
-void
-tconnection::set_async_mode(boost::asio::io_service::strand& strand__)
-{
-	LOG_T(__PRETTY_FUNCTION__, ".\n");
-
-	set_sync_mode();
-	strand_ = &strand__;
-}
-
-void
-tconnection::set_sync_mode()
-{
-	LOG_T(__PRETTY_FUNCTION__, ".\n");
-
-	if(own_strand_) {
-		delete strand_;
-		own_strand_ = false;
-	}
-
-	own_strand_ = nullptr;
+	strand_disable();
 }
 
 uint32_t
@@ -190,12 +158,6 @@ tconnection::encode(const tmessage::ttype type
 	}
 
 	return tmessage(type, id, data);
-}
-
-boost::asio::io_service::strand*
-tconnection::strand()
-{
-	return strand_;
 }
 
 void

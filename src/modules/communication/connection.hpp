@@ -25,11 +25,12 @@
 #ifndef MODULES_COMMUNICATION_CONNECTION_HPP_INCLUDED
 #define MODULES_COMMUNICATION_CONNECTION_HPP_INCLUDED
 
-#include <boost/asio/strand.hpp>
+#include "lib/strand/strand.hpp"
 
 namespace communication {
 
 class tconnection
+	: public lib::tstrand
 {
 public:
 
@@ -148,15 +149,6 @@ public:
 
 	/***** ***** Operators. ***** *****/
 
-	void
-	set_async_mode(boost::asio::io_service& io_service);
-
-	void
-	set_async_mode(boost::asio::io_service::strand& strand__);
-
-	void
-	set_sync_mode();
-
 	static uint32_t
 	network_buffer_to_host(const char* value);
 
@@ -172,9 +164,6 @@ public:
 
 	/***** ***** Setters, getters. ***** *****/
 
-	boost::asio::io_service::strand*
-	strand();
-
 	void
 	set_protocol(const tprotocol protocol__);
 
@@ -187,10 +176,6 @@ public:
 private:
 
 	/***** ***** Members. ***** *****/
-
-	boost::asio::io_service::strand* strand_{nullptr};
-
-	bool own_strand_{false};
 
 	tprotocol protocol_{tprotocol::telnet};
 

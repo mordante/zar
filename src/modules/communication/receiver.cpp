@@ -40,13 +40,8 @@ void
 treceiver_::start()
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		strand__->post(std::bind(
-				  &treceiver_::async_receive_message
-				, this));
-	} else {
-		async_receive_message();
-	}
+
+	strand_execute(std::bind(&treceiver_::async_receive_message, this));
 }
 
 void
@@ -165,48 +160,45 @@ treceiver<AsyncReadStream>::async_receive_until(const std::string& terminator)
 {
 	LOG_T(__PRETTY_FUNCTION__, "' terminator '", terminator, "'.\n");
 
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		boost::asio::async_read_until(
-				  dynamic_cast<AsyncReadStream&>(*this)
-				, input_buffer_
-				, terminator
-				, strand__->wrap(std::bind(
-					  &treceiver_::asio_receive_callback
-					, this
-					, std::placeholders::_1
-					, std::placeholders::_2)));
-	} else {
-		boost::asio::async_read_until(
-				  dynamic_cast<AsyncReadStream&>(*this)
-				, input_buffer_
-				, terminator
-				, std::bind(
-					  &treceiver_::asio_receive_callback
-					, this
-					, std::placeholders::_1
-					, std::placeholders::_2));
-	}
+	typedef std::function<void(
+				  const boost::system::error_code&
+				, const size_t bytes_transferred
+			)>
+			thandler;
+
+	strand_execute(
+			[&](thandler&& handler)
+			  {
+				  boost::asio::async_read_until(
+						  dynamic_cast<AsyncReadStream&>(*this)
+						, input_buffer_
+						, terminator
+						, handler);
+			  }
+			, std::bind(
+				  &treceiver_::asio_receive_callback
+				, this
+				, std::placeholders::_1
+				, std::placeholders::_2));
 }
 
 template<class AsyncReadStream>
 void
-treceiver<AsyncReadStream>::async_receive(const size_t bytes, thandler handler)
+treceiver<AsyncReadStream>::async_receive(
+		  const size_t bytes
+		, thandler handler)
 {
 	LOG_T(__PRETTY_FUNCTION__, "' bytes '", bytes, "'.\n");
-
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		boost::asio::async_read(
-				  dynamic_cast<AsyncReadStream&>(*this)
-				, input_buffer_
-				, boost::asio::transfer_exactly(bytes)
-				, strand__->wrap(handler));
-	} else {
-		boost::asio::async_read(
-				  dynamic_cast<AsyncReadStream&>(*this)
-				, input_buffer_
-				, boost::asio::transfer_exactly(bytes)
-				, handler);
-	}
+	strand_execute(
+			[&](thandler&& h)
+			  {
+				  boost::asio::async_read(
+						  dynamic_cast<AsyncReadStream&>(*this)
+						, input_buffer_
+						, boost::asio::transfer_exactly(bytes)
+						, h);
+			  }
+			, handler);
 }
 
 template class treceiver<boost::asio::ip::tcp::socket>;

@@ -99,25 +99,21 @@ public:
 				  InternetProtocol::v4()
 				, hostname
 				, service);
+		typedef std::function<void(
+					  const boost::system::error_code&
+					, typename InternetProtocol::resolver::iterator
+				)>
+				thandler;
 
-		if(boost::asio::io_service::strand* strand__ = strand()) {
-			resolver_.async_resolve(
-					  query_
-					, strand__->wrap(std::bind(
-						  &tconnector::asio_callback_resolve
-						, this
-						, std::placeholders::_1
-						, std::placeholders::_2)));
-		} else {
-			resolver_.async_resolve(
-					  query_
-					, std::bind(
-						  &tconnector::asio_callback_resolve
-						, this
-						, std::placeholders::_1
-						, std::placeholders::_2));
-		}
-
+		strand_execute([&](thandler&& handler)
+				  {
+					  resolver_.async_resolve(query_, handler);
+				  }
+				, std::bind(
+					  &tconnector::asio_callback_resolve
+					, this
+					, std::placeholders::_1
+					, std::placeholders::_2));
 	}
 
 	void
@@ -139,25 +135,25 @@ public:
 	void
 	async_connect(typename InternetProtocol::resolver::iterator iterator)
 	{
-		if(boost::asio::io_service::strand* strand__ = strand()) {
-			boost::asio::async_connect(
-					  dynamic_cast<typename InternetProtocol::socket&>(*this)
-					, iterator
-					, strand__->wrap(std::bind(
-						  &tconnector::asio_callback_connect
-						, this
-						, std::placeholders::_1
-						, iterator)));
-		} else {
-			boost::asio::async_connect(
-					  dynamic_cast<typename InternetProtocol::socket&>(*this)
-					, iterator
-					, std::bind(
-						  &tconnector::asio_callback_connect
-						, this
-						, std::placeholders::_1
-						, iterator));
-		}
+		typedef std::function<void(
+					  const boost::system::error_code&
+					, typename InternetProtocol::resolver::iterator
+				)>
+				thandler;
+
+		strand_execute([&](thandler&& handler)
+				  {
+					  boost::asio::async_connect(
+							  dynamic_cast<typename InternetProtocol::socket&>(
+								  *this)
+							, iterator
+							, handler);
+				  }
+				, std::bind(
+					  &tconnector::asio_callback_connect
+					, this
+					, std::placeholders::_1
+					, iterator));
 	}
 
 	void

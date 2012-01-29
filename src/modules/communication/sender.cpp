@@ -35,14 +35,10 @@ tsender_::send_action(const std::string& message)
 	uint32_t id__;
 	while((id__ = ++id_) == 0) { /* NOTHING */ }
 
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		strand__->post(std::bind(
-				  &tsender_::async_send_message
-				, this
-				, encode(tmessage::ttype::action, id__, message)));
-	} else {
-		async_send_message(encode(tmessage::ttype::action, id__, message));
-	}
+	strand_execute(std::bind(
+			  &tsender_::async_send_message
+			, this
+			, encode(tmessage::ttype::action, id__, message)));
 
 	return id__;
 }
@@ -55,14 +51,10 @@ tsender_::send_reply(const uint32_t id__, const std::string& message)
 			, "« message »", message
 			, "«.\n");
 
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		strand__->post(std::bind(
-				  &tsender_::async_send_message
-				, this
-				, encode(tmessage::ttype::reply, id__, message)));
-	} else {
-		async_send_message(encode(tmessage::ttype::reply, id__, message));
-	}
+	strand_execute(std::bind(
+			  &tsender_::async_send_message
+			, this
+			, encode(tmessage::ttype::reply, id__, message)));
 }
 
 void
@@ -120,25 +112,25 @@ tsender<AsyncWriteStream>::async_send_queue()
 			, "« data »", messages_.front().message
 			, "«.\n");
 
-	if(boost::asio::io_service::strand* strand__ = strand()) {
-		boost::asio::async_write(
-				  dynamic_cast<AsyncWriteStream&>(*this)
-				, boost::asio::buffer(messages_.front().message)
-				, strand__->wrap(std::bind(
-					  &tsender_::asio_send_callback
-					, this
-					, std::placeholders::_1
-					, std::placeholders::_2)));
-	} else {
-		boost::asio::async_write(
-				  dynamic_cast<AsyncWriteStream&>(*this)
-				, boost::asio::buffer(messages_.front().message)
-				, std::bind(
-					  &tsender_::asio_send_callback
-					, this
-					, std::placeholders::_1
-					, std::placeholders::_2));
-	}
+	typedef std::function<void(
+				  const boost::system::error_code&
+				, const size_t bytes_transferred
+			)>
+			thandler;
+
+	strand_execute(
+			[&](thandler&& handler)
+			  {
+				  boost::asio::async_write(
+						  dynamic_cast<AsyncWriteStream&>(*this)
+						, boost::asio::buffer(messages_.front().message)
+						, handler);
+			  }
+			, std::bind(
+				  &tsender_::asio_send_callback
+				, this
+				, std::placeholders::_1
+				, std::placeholders::_2));
 }
 
 template class tsender<boost::asio::ip::tcp::socket>;
