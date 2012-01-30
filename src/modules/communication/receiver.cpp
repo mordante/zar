@@ -87,9 +87,9 @@ treceiver_::asio_receive_callback_read_length(
 		, const size_t bytes_transferred)
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": error '", error
-			, "' bytes_transferred '" , bytes_transferred
-			, "'.\n");
+			, ": error »", error.message()
+			, "« bytes_transferred »" , bytes_transferred
+			, "«.\n");
 
 	total_bytes_transferred_ += bytes_transferred;
 
@@ -123,9 +123,9 @@ treceiver_::asio_receive_callback(
 		, const size_t bytes_transferred)
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": error '", error
-			, "' bytes_transferred '" , bytes_transferred
-			, "'.\n");
+			, ": error »", error.message()
+			, "« bytes_transferred »" , bytes_transferred
+			, "«.\n");
 
 	total_bytes_transferred_ += bytes_transferred;
 

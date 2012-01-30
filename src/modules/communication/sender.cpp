@@ -87,7 +87,7 @@ tsender_::asio_send_callback(
 	, const size_t bytes_transferred)
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": error »", error
+			, ": error »", error.message()
 			, "« bytes_transferred »", bytes_transferred
 			, "«.\n");
 

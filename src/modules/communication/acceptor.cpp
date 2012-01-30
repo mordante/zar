@@ -33,6 +33,8 @@ tacceptor_::set_accept_handler(const taccept_handler& handler__)
 void
 tacceptor_::asio_accept_callback(const boost::system::error_code& error)
 {
+	LOG_T(__PRETTY_FUNCTION__, ": error »", error.message(), "«.\n");
+
 	if(accept_handler_) {
 		accept_handler_(error);
 	}
