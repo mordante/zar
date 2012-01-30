@@ -26,6 +26,7 @@
 #define MODULES_COMMUNICATION_CONNECTION_HPP_INCLUDED
 
 #include "lib/strand/strand.hpp"
+#include "modules/communication/types.hpp"
 
 namespace communication {
 
@@ -35,24 +36,6 @@ class tconnection
 public:
 
 	/***** ***** Types. ***** *****/
-
-	enum class tprotocol
-	{
-		/** No formatting. */
-		  direct
-
-		/** Line based on Linux. */
-		, line
-
-		/** Line based on telnet. */
-		, telnet
-
-		/** Data has its length prefixed. */
-		, basic
-
-		/** Data has its length prefixed and compressed. */
-		, compressed
-	};
 
 	struct tmessage final
 	{
@@ -183,10 +166,6 @@ private:
 };
 
 } // namespace communication
-
-#include "lib/string/enumerate.tpp"
-
-ENUM_DECLARE_STREAM_OPERATORS(::communication::tconnection::tprotocol)
 
 #endif
 

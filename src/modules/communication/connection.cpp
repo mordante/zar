@@ -14,21 +14,10 @@
 
 #define LOGGER_DEFINE_MODULE_LOGGER_MACROS "communication"
 
-#define ENUM_ENABLE_STREAM_OPERATORS_IMPLEMENTATION
-#define ENUM_TYPE ::communication::tconnection::tprotocol
-#define ENUM_LIST                                                             \
-ENUM(direct,                      "direct");                                  \
-ENUM(line,                        "line");                                    \
-ENUM(telnet,                      "telnet");                                  \
-ENUM(basic,                       "basic");                                   \
-ENUM(compressed,                  "compressed");                              \
-
 #include "modules/communication/connection.hpp"
 
 #include "lib/exception/validate.tpp"
 #include "modules/logging/log.hpp"
-
-ENUM_DEFINE_STREAM_OPERATORS(ENUM_TYPE)
 
 namespace communication {
 
@@ -168,7 +157,7 @@ tconnection::set_protocol(const tprotocol protocol__)
 	protocol_ = protocol__;
 }
 
-tconnection::tprotocol
+tprotocol
 tconnection::get_protocol() const
 {
 	return protocol_;

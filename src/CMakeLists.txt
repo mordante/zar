@@ -36,6 +36,7 @@ add_library(communication STATIC
 	modules/communication/connector.cpp
 	modules/communication/acceptor.cpp
 	modules/communication/sender.cpp
+	modules/communication/types.cpp
 	modules/communication/receiver.cpp
 	modules/communication/file.cpp
 	modules/communication/socket.cpp
