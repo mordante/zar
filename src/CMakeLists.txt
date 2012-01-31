@@ -32,6 +32,7 @@ add_library(strand STATIC
 ### Communication
 
 add_library(communication STATIC
+	modules/communication/message.cpp
 	modules/communication/connection.cpp
 	modules/communication/connector.cpp
 	modules/communication/acceptor.cpp

@@ -38,7 +38,7 @@ tsender_::send_action(const std::string& message)
 	strand_execute(std::bind(
 			  &tsender_::async_send_message
 			, this
-			, encode(tmessage::ttype::action, id__, message)));
+			, tmessage(tmessage::ttype::action, id__, message)));
 
 	return id__;
 }
@@ -54,7 +54,7 @@ tsender_::send_reply(const uint32_t id__, const std::string& message)
 	strand_execute(std::bind(
 			  &tsender_::async_send_message
 			, this
-			, encode(tmessage::ttype::reply, id__, message)));
+			, tmessage(tmessage::ttype::reply, id__, message)));
 }
 
 void
@@ -69,8 +69,8 @@ void
 tsender_::async_send_message(tmessage message)
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": id »", message.id
-			, "« message »", message.message
+			, ": id »", message.id()
+			, "« message »", message.contents()
 			, "«.\n");
 
 	const bool sending = !messages_.empty();
@@ -108,8 +108,8 @@ void
 tsender<AsyncWriteStream>::async_send_queue()
 {
 	LOG_T(__PRETTY_FUNCTION__
-			, ": id »", messages_.front().id
-			, "« data »", messages_.front().message
+			, ": id »", messages_.front().id()
+			, "« data »", messages_.front().contents()
 			, "«.\n");
 
 	typedef std::function<void(
@@ -123,7 +123,8 @@ tsender<AsyncWriteStream>::async_send_queue()
 			  {
 				  boost::asio::async_write(
 						  dynamic_cast<AsyncWriteStream&>(*this)
-						, boost::asio::buffer(messages_.front().message)
+						, boost::asio::buffer(
+								messages_.front().encode(get_protocol()))
 						, handler);
 			  }
 			, std::bind(

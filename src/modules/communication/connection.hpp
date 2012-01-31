@@ -26,7 +26,7 @@
 #define MODULES_COMMUNICATION_CONNECTION_HPP_INCLUDED
 
 #include "lib/strand/strand.hpp"
-#include "modules/communication/types.hpp"
+#include "modules/communication/message.hpp"
 
 namespace communication {
 
@@ -36,49 +36,6 @@ class tconnection
 public:
 
 	/***** ***** Types. ***** *****/
-
-	struct tmessage final
-	{
-		/***** ***** Types. ***** *****/
-
-		enum class ttype
-		{
-			  action
-			, reply
-		};
-
-
-		/***** ***** Constructor, destructor, assignment. ***** *****/
-
-		/**
-		 * Constructor.
-		 *
-		 * Creates an invalid object, the type is nonsense.
-		 */
-		tmessage();
-
-		tmessage(const ttype type__
-				, const uint32_t id__
-				, const std::string& message__);
-
-		~tmessage() = default;
-
-		tmessage&
-		operator=(const tmessage&) = default;
-		tmessage(const tmessage&) = default;
-
-		tmessage&
-		operator=(tmessage&&) = default;
-		tmessage(tmessage&&) = default;
-
-
-		/***** ***** Members. ***** *****/
-
-		ttype type;
-		uint32_t id;
-		/** rename field to data? */
-		std::string message;
-	};
 
 	typedef std::function<void(
 				  const boost::system::error_code& error
@@ -93,7 +50,7 @@ public:
 	typedef std::function<void(
 				  const boost::system::error_code& error
 				, const size_t bytes_transferred
-				, const tmessage& message
+				, const tmessage* message
 			)>
 			treceive_handler;
 
@@ -131,18 +88,6 @@ public:
 
 
 	/***** ***** Operators. ***** *****/
-
-	static uint32_t
-	network_buffer_to_host(const char* value);
-
-	tmessage
-	decode(std::string data);
-
-	static std::string
-	host_to_network_string(const uint32_t value);
-
-	tmessage
-	encode(const tmessage::ttype type, uint32_t id, std::string data);
 
 
 	/***** ***** Setters, getters. ***** *****/

@@ -95,8 +95,7 @@ treceiver_::asio_receive_callback_read_length(
 
 	if(error) {
 		if(receive_handler_) {
-			tconnection::tmessage message;
-			receive_handler_(error, bytes_transferred, message);
+			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
 		start();
@@ -131,8 +130,7 @@ treceiver_::asio_receive_callback(
 
 	if(error) {
 		if(receive_handler_) {
-			tconnection::tmessage message;
-			receive_handler_(error, bytes_transferred, message);
+			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
 		start();
@@ -140,14 +138,16 @@ treceiver_::asio_receive_callback(
 	}
 
 	/* decode message */
-	tconnection::tmessage message = decode(std::string(
-			  boost::asio::buffer_cast<const char*>(input_buffer_.data())
-			, bytes_transferred));
+	tmessage message(
+			  get_protocol()
+			, std::string(
+				  boost::asio::buffer_cast<const char*>(input_buffer_.data())
+				, bytes_transferred));
 
 	input_buffer_.consume(bytes_transferred);
 
 	if(receive_handler_) {
-		receive_handler_(error, bytes_transferred, message);
+		receive_handler_(error, bytes_transferred, &message);
 	}
 
 	start();
