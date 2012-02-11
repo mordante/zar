@@ -50,6 +50,30 @@ target_link_libraries(communication
 	${Boost_SYSTEM_LIBRARIES}
 )
 
+### Game
+
+add_library(game STATIC
+       modules/game/game.cpp
+       modules/game/detail/player.cpp
+)
+
+target_link_libraries(game
+       logging
+)
+
+### Lobby
+
+add_library(lobby STATIC
+       modules/lobby/lobby.cpp
+       modules/lobby/session.cpp
+       modules/lobby/detail/session_reaper.cpp
+)
+
+target_link_libraries(lobby
+       communication
+       game
+)
+
 ### Logging
 
 add_library(logging
