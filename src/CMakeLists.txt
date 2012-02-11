@@ -88,6 +88,24 @@ target_link_libraries(logging
 )
 
 
+########## Programmes. ##########
+
+### Zard
+
+set(zard_sources
+	zard/zard.cpp
+)
+
+add_executable(zard
+	${zard_sources}
+)
+
+target_link_libraries(zard
+	lobby
+	${Boost_SYSTEM_LIBRARIES}
+)
+
+
 ########## Unit tests. ##########
 
 if(ENABLE_UNIT_TEST)
