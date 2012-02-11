@@ -30,6 +30,7 @@ option(ENABLE_DESIGN_DOCUMENT
 ########## Dependencies. ##########
 
 set(boost_components
+	date_time
 	system
 )
 

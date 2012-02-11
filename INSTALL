@@ -7,6 +7,7 @@ guarantees.
 	cmake >= 2.8.0 (2.8.2)
 	g++ >= 4.7.0 *
 	boost >= 1.48
+	boost_date_time >= 1.48
 	boost_system >= 1.48
 	boost_thread >= 1.48
 	boost_unit_tests >= 1.48 **

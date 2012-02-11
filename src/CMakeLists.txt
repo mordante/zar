@@ -90,6 +90,26 @@ target_link_libraries(logging
 
 ########## Programmes. ##########
 
+### czar
+
+# add another connection class in a library
+# This class does the basic connection stuff
+# currently part of the sesion in the lobby
+set(czar_sources
+	czar/czar.cpp
+	czar/application.cpp
+)
+
+add_executable(czar
+	${czar_sources}
+)
+
+target_link_libraries(czar
+	communication
+	${Boost_DATE_TIME_LIBRARIES}
+	${Boost_SYSTEM_LIBRARIES}
+)
+
 ### Zard
 
 set(zard_sources
