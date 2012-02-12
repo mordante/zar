@@ -14,6 +14,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 add_library(exception STATIC
 	lib/exception/exception.cpp
+	lib/exception/exit.cpp
 )
 
 ### Strand
