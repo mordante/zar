@@ -18,6 +18,7 @@
 
 #include "lib/exception/validate.tpp"
 #include "modules/logging/log.hpp"
+#include "zard/configuration.hpp"
 
 namespace lobby {
 
@@ -28,7 +29,9 @@ tlobby::tlobby()
 	   */
 	: acceptor_(
 		  io_service_
-		, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 2048))
+		, boost::asio::ip::tcp::endpoint(
+			  boost::asio::ip::tcp::v4()
+			, tconfiguration::configuration().port))
 {
 	run();
 }
@@ -121,8 +124,8 @@ tlobby::run()
 
 	session_reaper_.run();
 
-	/* Number of threads hard-coded. */
-	for(int i = 0; i < 2; ++i) {
+	/* Start at thread 1 since the main appliction is the first thread. */
+	for(unsigned i = 1; i < tconfiguration::configuration().threads; ++i) {
 		threads_.push_back(std::thread(loop, std::ref(io_service_)));
 	}
 

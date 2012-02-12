@@ -15,18 +15,28 @@
 #define LOGGER_DEFINE_MODULE_LOGGER_MACROS "zard"
 
 #include "lib/exception/exception.hpp"
-//#include "lib/exception/exit.hpp"
+#include "lib/exception/exit.hpp"
 #include "modules/lobby/lobby.hpp"
 #include "modules/logging/log.hpp"
+#include "zard/configuration.hpp"
+#include "zard/options.hpp"
 
 #include <stdexcept>
 #include <iostream>
 
-int main(int /*argc*/, char* /*argv*/[])
+int main(int argc, char* argv[])
 {
 	try {
 
 		LOG_I("Starting.\n");
+
+		const toptions& options = toptions::parse(argc, argv);
+		if(!options.foreground) {
+			LOG_W("Daemon mode not yet implemented.\n");
+		}
+
+		/* Call to initialize the configuration. */
+		tconfiguration::configuration();
 
 		lobby::tlobby lobby;
 
@@ -42,8 +52,8 @@ int main(int /*argc*/, char* /*argv*/[])
 	} catch(const std::runtime_error& e) {
 		std::cerr << e.what() << '\n';
 		return EXIT_FAILURE;
-//	} catch(const lib::texit& e) {
-//		return e.exit_code;
+	} catch(const lib::texit& exit) {
+		return exit.status;
 	}
 	return EXIT_SUCCESS;
 }

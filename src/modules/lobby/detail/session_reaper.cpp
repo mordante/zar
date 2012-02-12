@@ -17,6 +17,7 @@
 #include "modules/lobby/detail/session_reaper.hpp"
 
 #include "modules/logging/log.hpp"
+#include "zard/configuration.hpp"
 
 namespace lobby {
 
@@ -35,8 +36,8 @@ tsession_reaper::run()
 {
 	LOG_T(__PRETTY_FUNCTION__, ".\n");
 
-	/* The timeout should be a setting. */
-	timer_.expires_from_now(boost::posix_time::seconds(30));
+	timer_.expires_from_now(boost::posix_time::seconds(
+			tconfiguration::configuration().reap_interval));
 
 	timer_.async_wait(std::bind(
 			  &tsession_reaper::wait_handler
