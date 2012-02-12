@@ -114,6 +114,7 @@ target_link_libraries(czar
 ### Zard
 
 set(zard_sources
+	zard/configuration.cpp
 	zard/options.cpp
 	zard/zard.cpp
 )
