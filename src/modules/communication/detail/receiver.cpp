@@ -163,7 +163,6 @@ treceiver<STREAM>::asio_receive_handler_read_length(
 			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
-		receive();
 		return;
 	}
 
@@ -199,7 +198,6 @@ treceiver<STREAM>::asio_receive_handler(
 			receive_handler_(error, bytes_transferred, nullptr);
 		}
 		input_buffer_.consume(bytes_transferred);
-		receive();
 		return;
 	}
 

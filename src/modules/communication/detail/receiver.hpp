@@ -65,7 +65,9 @@ public:
 	/**
 	 * Starts receiving messages.
 	 *
-	 * For every message received @ref receive_handler_ is called.
+	 * For every message received @ref receive_handler_ is called. The when
+	 * there is no error the callback function will automatically call
+	 * receive again. This results in a continues receive process.
 	 */
 	void
 	receive();
