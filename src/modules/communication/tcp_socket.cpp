@@ -80,6 +80,7 @@ ttcp_socket::send_reply(const uint32_t id__, const std::string& message)
 void
 ttcp_socket::close()
 {
+	socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 	socket_.close();
 }
 
