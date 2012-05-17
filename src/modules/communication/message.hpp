@@ -137,7 +137,7 @@ network_buffer_to_host(const char value[4]);
  * @returns                       A string with the converted value.
  */
 std::string
-host_to_network_string(const uint32_t value);
+host_to_network_string(uint32_t value);
 
 } // namespace communication
 

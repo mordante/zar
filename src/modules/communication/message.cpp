@@ -158,9 +158,10 @@ network_buffer_to_host(const char value[4])
 }
 
 std::string
-host_to_network_string(const uint32_t value)
+host_to_network_string(uint32_t value)
 {
-	return std::string(reinterpret_cast<char*>(htonl(value)), 4);
+	value = htonl(value);
+	return std::string(reinterpret_cast<char*>(&value), 4);
 }
 
 } // namespace communication
