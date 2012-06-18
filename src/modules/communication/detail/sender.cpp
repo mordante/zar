@@ -124,6 +124,9 @@ tsender<STREAM>::send_queue_message()
 			, "« data »", messages_.front().contents()
 			, "«.\n");
 
+	std::ostream os(&send_buffer_);
+	os << messages_.front().encode(connection_.get_protocol());
+
 	typedef std::function<void(
 				  const boost::system::error_code&
 				, const size_t bytes_transferred
@@ -134,8 +137,7 @@ tsender<STREAM>::send_queue_message()
 		{
 			boost::asio::async_write(
 					  stream_
-					, boost::asio::buffer(messages_.front().encode(
-							connection_.get_protocol()))
+					, send_buffer_
 					, handler);
 		};
 

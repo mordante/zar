@@ -19,6 +19,7 @@
 
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/streambuf.hpp>
 
 #include <queue>
 
@@ -105,6 +106,9 @@ private:
 
 	/** The stream used for the communication. */
 	STREAM& stream_;
+
+	/** The underlaying buffer used to send the data over the stream. */
+	boost::asio::streambuf send_buffer_{};
 
 	/**
 	 * The queue with the messages.
